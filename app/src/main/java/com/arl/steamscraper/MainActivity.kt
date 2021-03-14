@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
 
         val jsonSteamApi: JsonSteamApi = retrofit.create(JsonSteamApi::class.java)
 
-        val call = jsonSteamApi.getGameSteam("1282730")
+        val call = jsonSteamApi.getGameSteam()
 
         call.enqueue(object: Callback<JsonSteamObject> {
 

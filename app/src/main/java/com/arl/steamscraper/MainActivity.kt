@@ -9,7 +9,13 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.arl.steamscraper.data.GameDataBase
+import com.arl.steamscraper.data.entity.Game
+import com.arl.steamscraper.rds.JsonSteamParser
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import java.net.URL
@@ -24,15 +30,23 @@ var imageUrl: String = ""
 var isWindows: Boolean = false
 var isMac: Boolean = false
 var isLinux: Boolean = false
+// TODO implementar RecyclerView
+var borrarList: List<Game> = listOf(Game(1, "name", 0.0, 0.0, 0, "image", "windows", "mac", "linux", "url"))
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main_prueba)
+        setContentView(R.layout.activity_main)
+        //setContentView(R.layout.activity_main_prueba)
 
-        val tvPrueba: TextView = findViewById(R.id.tv_prueba)
+        //val tvPrueba: TextView = findViewById(R.id.tv_prueba)
         val fab: FloatingActionButton = findViewById(R.id.btn_fab)
+
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
+        val adapter = RVAdapter(borrarList) // TODO hacer
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
         fab.setOnClickListener { btn: View ->
             // 1. Instantiate an >AlertDialog.Builder with its constructor
@@ -69,41 +83,17 @@ class MainActivity : AppCompatActivity() {
         val url4: String = "https://store.steampowered.com/api/appdetails/?appids=1128920"
         val url5: String = "https://store.steampowered.com/api/appdetails/?appids=578650"
         val url6: String = "https://store.steampowered.com/api/appdetails/?appids=552500"
-        Log.d("onCreate", "Current thread = " + Thread.currentThread().name)
 
         val list: List<String> = listOf(url1, url2, url3, url4, url5, url6)
 
-        MainScope().launch {
-            for (url: String in list) {
-                parseUrl(url)
-
-                tvPrueba.append("$appid \n")
-                tvPrueba.append("$name \n")
-                tvPrueba.append("$initialPrice \n")
-                tvPrueba.append("$finalPrice \n")
-                tvPrueba.append("$discount% \n")
-                tvPrueba.append("$imageUrl \n")
-                tvPrueba.append("$isWindows \n")
-                tvPrueba.append("$isMac \n")
-                tvPrueba.append("$isLinux \n\n")
-            }
+        for (url: String in list) {
+            //parseUrl(url, tvPrueba)
         }
     }
 
-    private fun parseUrl(url: String) {
+    private fun parseUrl(url: String, tvPrueba: TextView) {
         MainScope().launch {
             val parser = getSteamParser(url)
-            Log.d("onCreate", parser.getAppId())
-            Log.d("onCreate", parser.getName())
-            Log.d("onCreate", parser.getInitialPrice().toString())
-            Log.d("onCreate", parser.getFinalPrice().toString())
-            Log.d("onCreate", parser.getDiscount().toString())
-            Log.d("onCreate", parser.getImageUrl())
-            Log.d("onCreate", parser.isWindows().toString())
-            Log.d("onCreate", parser.isMac().toString())
-            Log.d("onCreate", parser.isLinux().toString())
-            Log.d("onCreate", "Current thread = " + Thread.currentThread().name)
-            Log.d("onCreate", "\n" + "------------------------------------------" + "\n")
 
             appid = parser.getAppId()
             name = parser.getName()
@@ -114,6 +104,27 @@ class MainActivity : AppCompatActivity() {
             isWindows = parser.isWindows()
             isMac = parser.isMac()
             isLinux = parser.isLinux()
+
+            /*tvPrueba.append("$appid \n")
+            tvPrueba.append("$name \n")
+            tvPrueba.append("$initialPrice \n")
+            tvPrueba.append("$finalPrice \n")
+            tvPrueba.append("$discount% \n")
+            tvPrueba.append("$imageUrl \n")
+            tvPrueba.append("$isWindows \n")
+            tvPrueba.append("$isMac \n")
+            tvPrueba.append("$isLinux \n\n")*/
+
+            Log.d("onCreate", "$appid \n")
+            Log.d("onCreate", "$name \n")
+            Log.d("onCreate", "$initialPrice \n")
+            Log.d("onCreate", "$finalPrice \n")
+            Log.d("onCreate", "$discount \n")
+            Log.d("onCreate", "$imageUrl \n")
+            Log.d("onCreate", "$isWindows \n")
+            Log.d("onCreate", "$isMac \n")
+            Log.d("onCreate", "$isLinux \n")
+            Log.d("onCreate", "\n" + "------------------------------------------" + "\n")
         }
     }
 
@@ -124,6 +135,7 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun getNetworkRequest(url: String): String {
         return withContext(Dispatchers.IO) {
+            Log.d("onCreate", "Current thread = " + Thread.currentThread().name)
             URL(url).readText()
         }
     }

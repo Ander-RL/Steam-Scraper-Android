@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.arl.steamscraper.data.entity.Game
 
 class RVAdapter(private val dataSet: List<Game>) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
     // Nested class
@@ -41,11 +42,11 @@ class RVAdapter(private val dataSet: List<Game>) : RecyclerView.Adapter<RVAdapte
         // contents of the view with that element
         val currentItem = dataSet[position]
         // TODO Check Game drawable parameter
-        viewHolder.ivGameImage.setImageDrawable(currentItem.imageResource)
-        viewHolder.tvGameName.text = currentItem.gameName
-        viewHolder.tvGamePlatform.text = currentItem.gamePlatform
-        viewHolder.tvPriceOriginal.text = currentItem.priceOriginal
-        viewHolder.tvPriceDiscount.text = currentItem.priceDiscount
+        //viewHolder.ivGameImage.setImageDrawable(currentItem.imageUrl)
+        viewHolder.tvGameName.text = currentItem.name
+        viewHolder.tvGamePlatform.text = currentItem.isWindows
+        viewHolder.tvPriceOriginal.text = currentItem.initialPrice.toString()
+        viewHolder.tvPriceDiscount.text = currentItem.finalPrice.toString()
     }
 
     // Return the size of your dataset (invoked by the layout manager)

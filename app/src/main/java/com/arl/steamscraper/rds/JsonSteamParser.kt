@@ -1,7 +1,6 @@
-package com.arl.steamscraper
+package com.arl.steamscraper.rds
 
 import android.util.Log
-import java.net.URL
 
 
 class JsonSteamParser(val url: String, val api: String) {

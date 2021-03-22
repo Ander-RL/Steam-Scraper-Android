@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.arl.steamscraper.data.dao.GameDao
 import com.arl.steamscraper.data.entity.Game
+import kotlinx.coroutines.CoroutineScope
 
 @Database(entities = [Game::class], version = 1, exportSchema = false)
 abstract class GameDataBase : RoomDatabase() {

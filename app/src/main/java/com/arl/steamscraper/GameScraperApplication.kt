@@ -2,6 +2,8 @@ package com.arl.steamscraper
 
 import android.app.Application
 import com.arl.steamscraper.data.GameDataBase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 
 /**
  * We want to only have one instance of the database and of the repository in our application.

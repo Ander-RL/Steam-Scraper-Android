@@ -12,8 +12,8 @@ data class Game(
     val finalPrice: Double,
     val discount: Int,
     val imageUrl: String,
-    val isWindows: String,
-    val isMac: String,
-    val isLinux: String,
+    val isWindows: Boolean,
+    val isMac: Boolean,
+    val isLinux: Boolean,
     val gameUrl: String
 )

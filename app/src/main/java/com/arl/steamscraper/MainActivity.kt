@@ -6,45 +6,45 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.arl.steamscraper.data.GameDataBase
 import com.arl.steamscraper.data.entity.Game
 import com.arl.steamscraper.rds.JsonSteamParser
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import java.net.URL
 
-var gameUrl: String = ""
-var appid: String = ""
-var name: String = ""
-var initialPrice: Double = 0.0
-var finalPrice: Double = 0.0
-var discount: Int = 0
-var imageUrl: String = ""
-var isWindows: Boolean = false
-var isMac: Boolean = false
-var isLinux: Boolean = false
-// TODO implementar RecyclerView
-var borrarList: List<Game> = listOf(Game(1, "name", 0.0, 0.0, 0, "image", "windows", "mac", "linux", "url"))
 
 class MainActivity : AppCompatActivity() {
+
+    private val gameViewModel: GameViewModel by viewModels { GameViewModelFactory((application as GameScraperApplication).repository) }
+    private var gameUrl: String = ""
+    private var appid: String = ""
+    private var name: String = ""
+    private var initialPrice: Double = 0.0
+    private var finalPrice: Double = 0.0
+    private var discount: Int = 0
+    private var imageUrl: String = ""
+    private var isWindows: Boolean = false
+    private var isMac: Boolean = false
+    private var isLinux: Boolean = false
+    private var games: List<Game> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //setContentView(R.layout.activity_main_prueba)
 
-        //val tvPrueba: TextView = findViewById(R.id.tv_prueba)
         val fab: FloatingActionButton = findViewById(R.id.btn_fab)
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
-        val adapter = RVAdapter(borrarList) // TODO hacer
+        val adapter = RVAdapter()
+
+        gameViewModel.gameList.observe(this, Observer { adapter.setData(it) })
+
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity() {
                         "Add",
                         DialogInterface.OnClickListener { dialog, id ->
                             gameUrl = editTextDialog.text.toString()
+                            parseUrl(gameUrl)
                             dialog.dismiss()
                             Toast.makeText(applicationContext, gameUrl, Toast.LENGTH_SHORT).show()
                         })
@@ -91,7 +92,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun parseUrl(url: String, tvPrueba: TextView) {
+    private fun parseUrl(url: String) {
         MainScope().launch {
             val parser = getSteamParser(url)
 
@@ -105,16 +106,9 @@ class MainActivity : AppCompatActivity() {
             isMac = parser.isMac()
             isLinux = parser.isLinux()
 
-            /*tvPrueba.append("$appid \n")
-            tvPrueba.append("$name \n")
-            tvPrueba.append("$initialPrice \n")
-            tvPrueba.append("$finalPrice \n")
-            tvPrueba.append("$discount% \n")
-            tvPrueba.append("$imageUrl \n")
-            tvPrueba.append("$isWindows \n")
-            tvPrueba.append("$isMac \n")
-            tvPrueba.append("$isLinux \n\n")*/
+            insertGame()
 
+            Log.d("onCreate", "\n" + "------------------------------------------" + "\n")
             Log.d("onCreate", "$appid \n")
             Log.d("onCreate", "$name \n")
             Log.d("onCreate", "$initialPrice \n")
@@ -138,5 +132,12 @@ class MainActivity : AppCompatActivity() {
             Log.d("onCreate", "Current thread = " + Thread.currentThread().name)
             URL(url).readText()
         }
+    }
+
+    private fun insertGame() {
+
+        val game: Game = Game(Integer.valueOf(appid), name, initialPrice, finalPrice, discount, imageUrl, isWindows, isMac, isLinux, gameUrl)
+        gameViewModel.insert(game)
+
     }
 }

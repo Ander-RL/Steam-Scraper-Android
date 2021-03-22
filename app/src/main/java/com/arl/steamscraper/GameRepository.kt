@@ -4,6 +4,8 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import com.arl.steamscraper.data.dao.GameDao
 import com.arl.steamscraper.data.entity.Game
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 // Declares the DAO as a private property in the constructor. Pass in the DAO
 // instead of the whole database, because you only need access to the DAO
@@ -17,26 +19,36 @@ class GameRepository(private val gameDao: GameDao) {
     // off the main thread.
     @WorkerThread
     suspend fun insert(game: Game) {
-        gameDao.insert(game)
+        withContext(Dispatchers.IO) {
+            gameDao.insert(game)
+        }
     }
 
     @WorkerThread
     suspend fun update(game: Game) {
-        gameDao.update(game)
+        withContext(Dispatchers.IO) {
+            gameDao.update(game)
+        }
     }
 
     @WorkerThread
     suspend fun delete(game: Game) {
-        gameDao.delete(game)
+        withContext(Dispatchers.IO) {
+            gameDao.delete(game)
+        }
     }
 
     @WorkerThread
     suspend fun deleteAllGames() {
-        gameDao.deleteAllGames()
+        withContext(Dispatchers.IO) {
+            gameDao.deleteAllGames()
+        }
     }
 
     @WorkerThread
     suspend fun getAllGames(): LiveData<List<Game>> {
-        return gameDao.getAllGames()
+        return withContext(Dispatchers.IO) {
+            gameDao.getAllGames()
+        }
     }
 }

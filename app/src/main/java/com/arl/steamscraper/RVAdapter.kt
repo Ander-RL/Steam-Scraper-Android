@@ -8,7 +8,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
 
-class RVAdapter(private val dataSet: List<Game>) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
+class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
+
+    var dataSet: List<Game> = arrayListOf()
+
+    fun setData(data: List<Game>) {
+        dataSet = data
+        notifyDataSetChanged()
+    }
+
     // Nested class
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivGameImage: ImageView
@@ -26,7 +34,8 @@ class RVAdapter(private val dataSet: List<Game>) : RecyclerView.Adapter<RVAdapte
             tvPriceDiscount = view.findViewById(R.id.tv_price_discount)
         }
     }
-//   ----- Outside the nested class -----
+
+    //   ----- Outside the nested class -----
     // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         // Create a new view, which defines the UI of the list item
@@ -41,10 +50,9 @@ class RVAdapter(private val dataSet: List<Game>) : RecyclerView.Adapter<RVAdapte
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
         val currentItem = dataSet[position]
-        // TODO Check Game drawable parameter
-        //viewHolder.ivGameImage.setImageDrawable(currentItem.imageUrl)
+
         viewHolder.tvGameName.text = currentItem.name
-        viewHolder.tvGamePlatform.text = currentItem.isWindows
+        viewHolder.tvGamePlatform.text = currentItem.isWindows.toString()
         viewHolder.tvPriceOriginal.text = currentItem.initialPrice.toString()
         viewHolder.tvPriceDiscount.text = currentItem.finalPrice.toString()
     }

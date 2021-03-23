@@ -131,8 +131,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun getSteamParser(url: String): JsonSteamParser {
-        val api = getNetworkRequest(url)
-        return JsonSteamParser(url, api)
+
+        var urlParsed = url.substring(url.indexOf("/app") + 5, url.length)
+        urlParsed = urlParsed.substring(0, urlParsed.indexOf("/"))
+
+        urlParsed = "https://store.steampowered.com/api/appdetails/?appids=$urlParsed"
+
+        Log.d("onCreate", urlParsed)
+
+        val api = getNetworkRequest(urlParsed)
+        return JsonSteamParser(urlParsed, api)
     }
 
     private suspend fun getNetworkRequest(url: String): String {

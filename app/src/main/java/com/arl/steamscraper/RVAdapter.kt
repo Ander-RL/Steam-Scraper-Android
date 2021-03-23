@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
 import kotlinx.coroutines.*
@@ -34,18 +35,24 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
     // Nested class
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivGameImage: ImageView
+        val ivGamePlatform1: ImageView
+        val ivGamePlatform2: ImageView
+        val ivGamePlatform3: ImageView
         val tvGameName: TextView
-        val tvGamePlatform: TextView
         val tvPriceOriginal: TextView
         val tvPriceDiscount: TextView
+        val tvDiscount: TextView
 
         init {
             // Define click listener for the ViewHolder's View.
             ivGameImage = view.findViewById(R.id.iv_game_mini_image)
+            ivGamePlatform1 = view.findViewById(R.id.iv_game_platform1)
+            ivGamePlatform2 = view.findViewById(R.id.iv_game_platform2)
+            ivGamePlatform3 = view.findViewById(R.id.iv_game_platform3)
             tvGameName = view.findViewById(R.id.tv_game_name)
-            tvGamePlatform = view.findViewById(R.id.tv_game_platform)
             tvPriceOriginal = view.findViewById(R.id.tv_price_original)
             tvPriceDiscount = view.findViewById(R.id.tv_price_discount)
+            tvDiscount = view.findViewById(R.id.tv_discount)
         }
     }
 
@@ -67,17 +74,47 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
 
         try {
             MainScope().launch {
-                val image = loadImageFromWeb(dataSet[position].imageUrl)
+                val image = loadImageFromWeb(currentItem.imageUrl)
                 viewHolder.ivGameImage.setImageDrawable(image)
             }
         } catch (e: Exception) {
             Log.d("RVAdapter", e.toString())
         }
 
+        if (currentItem.isWindows) {
+            viewHolder.ivGamePlatform1.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    viewHolder.ivGamePlatform1.resources,
+                    R.drawable.windows_transparent,
+                    null
+                )
+            )
+        }
+        if (currentItem.isMac) {
+            viewHolder.ivGamePlatform2.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    viewHolder.ivGamePlatform2.resources,
+                    R.drawable.mac_transparent,
+                    null
+                )
+            )
+        }
+        if (currentItem.isLinux) {
+            viewHolder.ivGamePlatform3.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    viewHolder.ivGamePlatform3.resources,
+                    R.drawable.linux_transparent,
+                    null
+                )
+            )
+        }
+
+        val discountString = currentItem.discount.toString() + "%"
+
         viewHolder.tvGameName.text = currentItem.name
-        viewHolder.tvGamePlatform.text = currentItem.isWindows.toString()
         viewHolder.tvPriceOriginal.text = currentItem.initialPrice.toString()
         viewHolder.tvPriceDiscount.text = currentItem.finalPrice.toString()
+        viewHolder.tvDiscount.text = discountString
     }
 
     // Return the size of your dataset (invoked by the layout manager)

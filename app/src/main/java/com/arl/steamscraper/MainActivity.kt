@@ -10,11 +10,13 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
 import com.arl.steamscraper.rds.JsonSteamParser
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
 import java.net.URL
 
@@ -78,18 +80,24 @@ class MainActivity : AppCompatActivity() {
             dialog.show()
         }
 
-        val url1: String = "https://store.steampowered.com/api/appdetails/?appids=1282730"
-        val url2: String = "https://store.steampowered.com/api/appdetails/?appids=983970"
-        val url3: String = "https://store.steampowered.com/api/appdetails/?appids=1222730"
-        val url4: String = "https://store.steampowered.com/api/appdetails/?appids=1128920"
-        val url5: String = "https://store.steampowered.com/api/appdetails/?appids=578650"
-        val url6: String = "https://store.steampowered.com/api/appdetails/?appids=552500"
+        val itemTouchHelperCallback = object: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
 
-        val list: List<String> = listOf(url1, url2, url3, url4, url5, url6)
-
-        for (url: String in list) {
-            //parseUrl(url, tvPrueba)
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                gameViewModel.delete(adapter.dataSet.get(viewHolder.absoluteAdapterPosition))
+                Toast.makeText(applicationContext,"Game deleted", Toast.LENGTH_SHORT).show()
+            }
         }
+
+        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+
     }
 
     private fun parseUrl(url: String) {

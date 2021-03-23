@@ -1,5 +1,7 @@
 package com.arl.steamscraper
 
+import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +9,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
+import kotlinx.coroutines.*
+import java.io.InputStream
+import java.lang.Exception
+import java.net.URL
 
 class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
 
@@ -15,6 +21,14 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
     fun setData(data: List<Game>) {
         dataSet = data
         notifyDataSetChanged()
+    }
+
+    private suspend fun loadImageFromWeb(url: String): Drawable {
+        return withContext(Dispatchers.IO) {
+            val inputStream: InputStream = URL(url).content as InputStream
+            // "src name" is a useless variable when not working with 9patch.
+            Drawable.createFromStream(inputStream, "src name")
+        }
     }
 
     // Nested class
@@ -50,6 +64,15 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
         val currentItem = dataSet[position]
+
+        try {
+            MainScope().launch {
+                val image = loadImageFromWeb(dataSet[position].imageUrl)
+                viewHolder.ivGameImage.setImageDrawable(image)
+            }
+        } catch (e: Exception) {
+            Log.d("RVAdapter", e.toString())
+        }
 
         viewHolder.tvGameName.text = currentItem.name
         viewHolder.tvGamePlatform.text = currentItem.isWindows.toString()

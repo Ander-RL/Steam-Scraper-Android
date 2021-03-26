@@ -8,9 +8,6 @@ data class Game(
     @PrimaryKey(autoGenerate = false)
     val appId: Int,
     val name: String,
-    val initialPrice: Double,
-    val finalPrice: Double,
-    val discount: Int,
     val imageUrl: String,
     val isWindows: Boolean,
     val isMac: Boolean,

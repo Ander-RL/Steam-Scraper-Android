@@ -7,9 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
+import com.arl.steamscraper.data.entity.Price
+import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import kotlinx.coroutines.*
 import java.io.InputStream
 import java.lang.Exception
@@ -17,12 +20,19 @@ import java.net.URL
 
 class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
 
-    var dataSet: List<Game> = arrayListOf()
+    var gameData: List<Game> = arrayListOf()
+    var priceData: List<Price> = arrayListOf()
 
-    fun setData(data: List<Game>) {
-        dataSet = data
+    fun setData(games: List<Game>) {
+        gameData = games
         notifyDataSetChanged()
     }
+
+    fun setPricesData(prices: List<Price>) {
+        priceData = prices
+        notifyDataSetChanged()
+    }
+
 
     private suspend fun loadImageFromWeb(url: String): Drawable {
         return withContext(Dispatchers.IO) {
@@ -70,7 +80,7 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        val currentItem = dataSet[position]
+        val currentItem = gameData[position]
 
         try {
             MainScope().launch {
@@ -109,15 +119,27 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
             )
         }
 
-        val discountString = currentItem.discount.toString() + "%"
-
         viewHolder.tvGameName.text = currentItem.name
-        viewHolder.tvPriceOriginal.text = currentItem.initialPrice.toString()
-        viewHolder.tvPriceDiscount.text = currentItem.finalPrice.toString()
-        viewHolder.tvDiscount.text = discountString
+        Log.d("RVAdapter", currentItem.toString())
+        //viewHolder.tvPriceOriginal.text = currentItem.listPrice[0].originalPrice.toString()
+        //viewHolder.tvPriceDiscount.text = currentItem.listPrice[0].currentPrice.toString()
+
+        //val discountString = currentItem.listPrice.last().discount.toString() + "%"
+        //viewHolder.tvDiscount.text = discountString
+
+        for (price: Price in priceData) {
+            if (price.appId == currentItem.appId) {
+                val priceList = arrayListOf<Price>()
+                priceList.add(price)
+                viewHolder.tvPriceOriginal.text = priceList.last().originalPrice.toString()
+                viewHolder.tvPriceDiscount.text = priceList.last().currentPrice.toString()
+                viewHolder.tvDiscount.text = priceList.last().discount.toString() + "%"
+                Log.d("RVAdapter", priceList.toString())
+            }
+        }
     }
 
     // Return the size of your dataset (invoked by the layout manager)
-    override fun getItemCount() = dataSet.size
+    override fun getItemCount() = gameData.size
 
 }

@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
+import com.arl.steamscraper.data.entity.Price
 import com.arl.steamscraper.rds.JsonSteamParser
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
 import java.net.URL
 
@@ -27,14 +27,13 @@ class MainActivity : AppCompatActivity() {
     private var gameUrl: String = ""
     private var appid: String = ""
     private var name: String = ""
-    private var initialPrice: Double = 0.0
-    private var finalPrice: Double = 0.0
+    private var originalPrice: Double = 0.0
+    private var currentPrice: Double = 0.0
     private var discount: Int = 0
     private var imageUrl: String = ""
     private var isWindows: Boolean = false
     private var isMac: Boolean = false
     private var isLinux: Boolean = false
-    private var games: List<Game> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         val adapter = RVAdapter()
 
         gameViewModel.gameList.observe(this, Observer { adapter.setData(it) })
+        gameViewModel.priceList.observe(this, Observer { adapter.setPricesData(it) })
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -90,13 +90,17 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                gameViewModel.delete(adapter.dataSet.get(viewHolder.absoluteAdapterPosition))
+                gameViewModel.delete(adapter.gameData.get(viewHolder.absoluteAdapterPosition))
                 Toast.makeText(applicationContext,"Game deleted", Toast.LENGTH_SHORT).show()
             }
         }
 
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
+
+        gameViewModel.gameList.observe(this, Observer { Log.d("onCreate", it.last().toString()) })
+        gameViewModel.priceList.observe(this, Observer { Log.d("onCreate", it.toString()) })
+        gameViewModel.gamesAndPricesList.observe(this, Observer { Log.d("onCreate", it.toString()) })
 
     }
 
@@ -106,8 +110,8 @@ class MainActivity : AppCompatActivity() {
 
             appid = parser.getAppId()
             name = parser.getName()
-            initialPrice = parser.getInitialPrice()
-            finalPrice = parser.getFinalPrice()
+            originalPrice = parser.getInitialPrice()
+            currentPrice = parser.getFinalPrice()
             discount = parser.getDiscount()
             imageUrl = parser.getImageUrl()
             isWindows = parser.isWindows()
@@ -119,8 +123,8 @@ class MainActivity : AppCompatActivity() {
             Log.d("onCreate", "\n" + "------------------------------------------" + "\n")
             Log.d("onCreate", "$appid \n")
             Log.d("onCreate", "$name \n")
-            Log.d("onCreate", "$initialPrice \n")
-            Log.d("onCreate", "$finalPrice \n")
+            Log.d("onCreate", "$originalPrice \n")
+            Log.d("onCreate", "$currentPrice \n")
             Log.d("onCreate", "$discount \n")
             Log.d("onCreate", "$imageUrl \n")
             Log.d("onCreate", "$isWindows \n")
@@ -152,8 +156,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun insertGame() {
 
-        val game: Game = Game(Integer.valueOf(appid), name, initialPrice, finalPrice, discount, imageUrl, isWindows, isMac, isLinux, gameUrl)
+        val game: Game = Game(Integer.valueOf(appid), name, imageUrl, isWindows, isMac, isLinux, gameUrl)
+        val price: Price = Price(0, Integer.valueOf(appid), originalPrice, currentPrice, discount)
+
+        var priceList: ArrayList<Price> = arrayListOf()
+        gameViewModel.priceList.observe(this, Observer { priceList = it as ArrayList<Price> })
+        Log.d("onCreate", "Price = $priceList")
+        priceList.add(price)
+
+        Log.d("onCreate", "Price = $priceList")
+
         gameViewModel.insert(game)
+        gameViewModel.insert(price)
+        //gameViewModel.insertGameAndPrice(game, priceList)
 
     }
 }

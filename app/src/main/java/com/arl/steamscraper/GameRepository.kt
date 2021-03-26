@@ -4,6 +4,8 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import com.arl.steamscraper.data.dao.GameDao
 import com.arl.steamscraper.data.entity.Game
+import com.arl.steamscraper.data.entity.Price
+import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -13,6 +15,8 @@ class GameRepository(private val gameDao: GameDao) {
 
     // Room executes all queries on a separate thread.
     val getAllGames: LiveData<List<Game>> = gameDao.getAllGames()
+    val getAllPrices: LiveData<List<Price>>  = gameDao.getAllPrices()
+    val getAllGamesAndPrices: LiveData<List<GameAndPrice>>  = gameDao.getAllGamesAndPrices()
 
     // By default Room runs suspend queries off the main thread, therefore, we don't need to
     // implement anything else to ensure we're not doing long running database work
@@ -21,6 +25,20 @@ class GameRepository(private val gameDao: GameDao) {
     suspend fun insert(game: Game) {
         withContext(Dispatchers.IO) {
             gameDao.insert(game)
+        }
+    }
+
+    @WorkerThread
+    suspend fun insert(price: Price) {
+        withContext(Dispatchers.IO) {
+            gameDao.insert(price)
+        }
+    }
+
+    @WorkerThread
+    suspend fun insertGameAndPrice(game: Game, priceList: List<Price>) {
+        withContext(Dispatchers.IO) {
+            gameDao.insertGameAndPrice(game, priceList)
         }
     }
 
@@ -50,5 +68,9 @@ class GameRepository(private val gameDao: GameDao) {
         return withContext(Dispatchers.IO) {
             gameDao.getAllGames()
         }
+    }
+
+    fun getAllGamesAndPrices(appId: Int): LiveData<List<GameAndPrice>> {
+        return gameDao.getAllGamesAndPrices(appId)
     }
 }

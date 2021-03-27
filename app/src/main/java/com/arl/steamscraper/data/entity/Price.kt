@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
+import java.util.*
 
 @Entity(tableName = "price_table", foreignKeys = [
     ForeignKey(
@@ -19,5 +20,6 @@ data class Price(
     var priceAppId: Int,
     val originalPrice: Double,
     val currentPrice: Double,
-    val discount: Int
+    val discount: Int,
+    val date: String
 )

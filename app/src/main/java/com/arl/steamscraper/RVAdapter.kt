@@ -1,5 +1,9 @@
 package com.arl.steamscraper
 
+import android.app.Application
+import android.content.Context
+import android.content.res.Resources
+import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,18 +11,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.content.res.ResourcesCompat.getColor
 import androidx.recyclerview.widget.RecyclerView
-import com.arl.steamscraper.data.entity.Game
-import com.arl.steamscraper.data.entity.Price
 import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import kotlinx.coroutines.*
 import java.io.InputStream
 import java.lang.Exception
 import java.net.URL
 
-class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
+class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
 
     var gameData: List<GameAndPrice> = arrayListOf()
 
@@ -113,12 +116,26 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
             )
         }
 
-        viewHolder.tvGameName.text = currentItem.game.name
-        Log.d("RVAdapter", currentItem.toString())
+        val originalPrice = currentItem.listPrice.last().originalPrice
+        val originalFormatted = "${originalPrice}€"
+        val currentPrice = currentItem.listPrice.last().currentPrice
+        val currentFormatted = "${currentPrice}€"
+        val discount = currentItem.listPrice.last().discount.toString() + "%"
 
-        viewHolder.tvPriceOriginal.text = currentItem.listPrice.last().originalPrice.toString()
-        viewHolder.tvPriceDiscount.text = currentItem.listPrice.last().currentPrice.toString()
-        viewHolder.tvDiscount.text = currentItem.listPrice.last().discount.toString() + "%"
+        viewHolder.tvGameName.text = currentItem.game.name
+        viewHolder.tvPriceDiscount.text = currentFormatted
+        viewHolder.tvDiscount.text = discount
+
+        if (originalPrice > currentPrice) {
+            viewHolder.tvPriceOriginal.paintFlags = (viewHolder.tvPriceOriginal.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG)
+            viewHolder.tvPriceOriginal.text = originalFormatted
+            viewHolder.tvPriceOriginal.setTextColor(ContextCompat.getColor(context, R.color.red))
+            viewHolder.tvPriceDiscount.setTextColor(ContextCompat.getColor(context, R.color.green))
+        } else {
+            viewHolder.tvPriceOriginal.text = originalFormatted
+        }
+
+        Log.d("RVAdapter", currentItem.toString())
         Log.d("RVAdapter", currentItem.listPrice.toString())
 
     }

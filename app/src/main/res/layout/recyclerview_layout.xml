@@ -76,8 +76,12 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/tv_price_original"
                 android:layout_alignParentEnd="true"
-                android:layout_margin="10dp"
-                android:text="Price discount" />
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="Price discount"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_discount"
@@ -90,6 +94,7 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="5dp"
                 android:layout_marginBottom="10dp"
+                android:textColor="@color/black"
                 android:layout_toStartOf="@+id/tv_price_discount"
                 android:text="Discount" />
 

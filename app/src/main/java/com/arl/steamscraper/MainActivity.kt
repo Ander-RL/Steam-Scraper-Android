@@ -1,5 +1,6 @@
 package com.arl.steamscraper
 
+import android.content.Context
 import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,6 +20,7 @@ import com.arl.steamscraper.rds.JsonSteamParser
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import java.net.URL
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,10 +41,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        applicationContext
+
         val fab: FloatingActionButton = findViewById(R.id.btn_fab)
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
-        val adapter = RVAdapter()
+        val adapter = RVAdapter(applicationContext)
 
         gameViewModel.gamesAndPricesList.observe(this, Observer { adapter.setData(it) })
 
@@ -151,11 +155,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun insertGame() {
 
+        val date = getDateString()
         val game: Game = Game(Integer.valueOf(appid), name, imageUrl, isWindows, isMac, isLinux, gameUrl)
-        val price: Price = Price(0, Integer.valueOf(appid), originalPrice, currentPrice, discount)
+        val price: Price = Price(0, Integer.valueOf(appid), originalPrice, currentPrice, discount, date)
+
+        Log.d("onCreate", "date = ${getDateString()}")
 
         gameViewModel.insert(game)
         gameViewModel.insert(price)
 
+    }
+
+    private fun getDateString(): String {
+
+        val c: Calendar = Calendar.getInstance()
+        val day = c.get(Calendar.DAY_OF_MONTH)
+        val month = c.get(Calendar.MONTH)
+        val year = c.get(Calendar.YEAR)
+
+        return "$day/$month/$year"
     }
 }

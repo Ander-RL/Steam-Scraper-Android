@@ -44,8 +44,7 @@ class MainActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
         val adapter = RVAdapter()
 
-        gameViewModel.gameList.observe(this, Observer { adapter.setData(it) })
-        gameViewModel.priceList.observe(this, Observer { adapter.setPricesData(it) })
+        gameViewModel.gamesAndPricesList.observe(this, Observer { adapter.setData(it) })
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -90,17 +89,13 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                gameViewModel.delete(adapter.gameData.get(viewHolder.absoluteAdapterPosition))
+                gameViewModel.delete(adapter.gameData.get(viewHolder.absoluteAdapterPosition).game)
                 Toast.makeText(applicationContext,"Game deleted", Toast.LENGTH_SHORT).show()
             }
         }
 
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
-
-        gameViewModel.gameList.observe(this, Observer { Log.d("onCreate", it.last().toString()) })
-        gameViewModel.priceList.observe(this, Observer { Log.d("onCreate", it.toString()) })
-        gameViewModel.gamesAndPricesList.observe(this, Observer { Log.d("onCreate", it.toString()) })
 
     }
 
@@ -159,16 +154,8 @@ class MainActivity : AppCompatActivity() {
         val game: Game = Game(Integer.valueOf(appid), name, imageUrl, isWindows, isMac, isLinux, gameUrl)
         val price: Price = Price(0, Integer.valueOf(appid), originalPrice, currentPrice, discount)
 
-        var priceList: ArrayList<Price> = arrayListOf()
-        gameViewModel.priceList.observe(this, Observer { priceList = it as ArrayList<Price> })
-        Log.d("onCreate", "Price = $priceList")
-        priceList.add(price)
-
-        Log.d("onCreate", "Price = $priceList")
-
         gameViewModel.insert(game)
         gameViewModel.insert(price)
-        //gameViewModel.insertGameAndPrice(game, priceList)
 
     }
 }

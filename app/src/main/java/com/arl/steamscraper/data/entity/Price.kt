@@ -9,14 +9,14 @@ import androidx.room.PrimaryKey
     ForeignKey(
         entity = Game::class,
         parentColumns = ["appId"],
-        childColumns = ["appId"],
+        childColumns = ["priceAppId"],
         onDelete = CASCADE
     )
 ])
 data class Price(
     @PrimaryKey(autoGenerate = true)
     val idPrice: Int = 0,
-    var appId: Int,
+    var priceAppId: Int,
     val originalPrice: Double,
     val currentPrice: Double,
     val discount: Int

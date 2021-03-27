@@ -30,7 +30,7 @@ interface GameDao {
     fun getAllGames(): LiveData<List<Game>>
 
     @Transaction
-    @Query("SELECT * FROM price_table ORDER BY appId DESC")
+    @Query("SELECT * FROM price_table ORDER BY priceAppId DESC")
     fun getAllPrices(): LiveData<List<Price>>
 
     @Transaction

@@ -9,7 +9,7 @@ data class GameAndPrice(
     @Embedded val game: Game,
     @Relation(
         parentColumn = "appId",
-        entityColumn = "idPrice"
+        entityColumn = "priceAppId"
     )
     val listPrice: List<Price> = emptyList()
 )

@@ -20,16 +20,10 @@ import java.net.URL
 
 class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
 
-    var gameData: List<Game> = arrayListOf()
-    var priceData: List<Price> = arrayListOf()
+    var gameData: List<GameAndPrice> = arrayListOf()
 
-    fun setData(games: List<Game>) {
+    fun setData(games: List<GameAndPrice>) {
         gameData = games
-        notifyDataSetChanged()
-    }
-
-    fun setPricesData(prices: List<Price>) {
-        priceData = prices
         notifyDataSetChanged()
     }
 
@@ -84,14 +78,14 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
 
         try {
             MainScope().launch {
-                val image = loadImageFromWeb(currentItem.imageUrl)
+                val image = loadImageFromWeb(currentItem.game.imageUrl)
                 viewHolder.ivGameImage.setImageDrawable(image)
             }
         } catch (e: Exception) {
             Log.d("RVAdapter", e.toString())
         }
 
-        if (currentItem.isWindows) {
+        if (currentItem.game.isWindows) {
             viewHolder.ivGamePlatform1.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     viewHolder.ivGamePlatform1.resources,
@@ -100,7 +94,7 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
                 )
             )
         }
-        if (currentItem.isMac) {
+        if (currentItem.game.isMac) {
             viewHolder.ivGamePlatform2.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     viewHolder.ivGamePlatform2.resources,
@@ -109,7 +103,7 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
                 )
             )
         }
-        if (currentItem.isLinux) {
+        if (currentItem.game.isLinux) {
             viewHolder.ivGamePlatform3.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     viewHolder.ivGamePlatform3.resources,
@@ -119,24 +113,14 @@ class RVAdapter : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
             )
         }
 
-        viewHolder.tvGameName.text = currentItem.name
+        viewHolder.tvGameName.text = currentItem.game.name
         Log.d("RVAdapter", currentItem.toString())
-        //viewHolder.tvPriceOriginal.text = currentItem.listPrice[0].originalPrice.toString()
-        //viewHolder.tvPriceDiscount.text = currentItem.listPrice[0].currentPrice.toString()
 
-        //val discountString = currentItem.listPrice.last().discount.toString() + "%"
-        //viewHolder.tvDiscount.text = discountString
+        viewHolder.tvPriceOriginal.text = currentItem.listPrice.last().originalPrice.toString()
+        viewHolder.tvPriceDiscount.text = currentItem.listPrice.last().currentPrice.toString()
+        viewHolder.tvDiscount.text = currentItem.listPrice.last().discount.toString() + "%"
+        Log.d("RVAdapter", currentItem.listPrice.toString())
 
-        for (price: Price in priceData) {
-            if (price.appId == currentItem.appId) {
-                val priceList = arrayListOf<Price>()
-                priceList.add(price)
-                viewHolder.tvPriceOriginal.text = priceList.last().originalPrice.toString()
-                viewHolder.tvPriceDiscount.text = priceList.last().currentPrice.toString()
-                viewHolder.tvDiscount.text = priceList.last().discount.toString() + "%"
-                Log.d("RVAdapter", priceList.toString())
-            }
-        }
     }
 
     // Return the size of your dataset (invoked by the layout manager)

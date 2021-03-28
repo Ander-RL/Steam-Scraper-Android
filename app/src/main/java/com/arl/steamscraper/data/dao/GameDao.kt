@@ -11,7 +11,7 @@ interface GameDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(game: Game)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     fun insert(price: Price)
 
     @Insert
@@ -26,15 +26,16 @@ interface GameDao {
     @Query("DELETE FROM game_table")
     fun deleteAllGames()
 
-    @Query("SELECT * FROM game_table ORDER BY appId DESC")
+    @Query("SELECT * FROM game_table ORDER BY appId ASC")
     fun getAllGames(): LiveData<List<Game>>
 
     @Transaction
-    @Query("SELECT * FROM price_table ORDER BY priceAppId DESC")
+    @Query("SELECT * FROM price_table ORDER BY priceAppId ASC")
     fun getAllPrices(): LiveData<List<Price>>
 
     @Transaction
-    @Query("SELECT * FROM game_table")
+    @Query("SELECT * FROM game_table JOIN price_table  WHERE appId = priceAppId ORDER BY currentPrice ASC")
+    //@Query("SELECT * FROM game_table ORDER BY name ASC")
     fun getAllGamesAndPrices(): LiveData<List<GameAndPrice>>
 
     @Transaction

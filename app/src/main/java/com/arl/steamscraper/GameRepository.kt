@@ -63,12 +63,12 @@ class GameRepository(private val gameDao: GameDao) {
         }
     }
 
-    @WorkerThread
-    suspend fun getAllGames(): LiveData<List<Game>> {
+    /*@WorkerThread
+    suspend fun getAllGames(): List<Game> {
         return withContext(Dispatchers.IO) {
             gameDao.getAllGames()
         }
-    }
+    }*/
 
     fun getAllGamesAndPrices(appId: Int): LiveData<List<GameAndPrice>> {
         return gameDao.getAllGamesAndPrices(appId)

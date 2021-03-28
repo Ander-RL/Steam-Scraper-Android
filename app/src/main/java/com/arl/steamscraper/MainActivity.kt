@@ -41,8 +41,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        applicationContext
-
         val fab: FloatingActionButton = findViewById(R.id.btn_fab)
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
@@ -54,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         fab.setOnClickListener { btn: View ->
-            // 1. Instantiate an >AlertDialog.Builder with its constructor
+            // 1. Instantiate an AlertDialog.Builder with its constructor
             val builder: AlertDialog.Builder = AlertDialog.Builder(this)
 
             val editTextDialog: EditText = EditText(this)
@@ -93,7 +91,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                gameViewModel.delete(adapter.gameData.get(viewHolder.absoluteAdapterPosition).game)
+                gameViewModel.delete(adapter.gameData.get(viewHolder.absoluteAdapterPosition))
+                adapter.gameData.remove(adapter.gameData.get(viewHolder.absoluteAdapterPosition))
+                adapter.notifyDataSetChanged()
                 Toast.makeText(applicationContext,"Game deleted", Toast.LENGTH_SHORT).show()
             }
         }

@@ -11,7 +11,7 @@ interface GameDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(game: Game)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(price: Price)
 
     @Insert

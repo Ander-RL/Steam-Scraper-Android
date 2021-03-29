@@ -1,6 +1,5 @@
 package com.arl.steamscraper
 
-import android.content.Context
 import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
 import com.arl.steamscraper.data.entity.Price
+import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import com.arl.steamscraper.rds.JsonSteamParser
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
         val adapter = RVAdapter(applicationContext)
 
+        val applicationScope = MainScope()
+
         gameViewModel.gamesAndPricesList.observe(this, Observer { adapter.setData(it) })
 
         recyclerView.adapter = adapter
@@ -67,7 +69,7 @@ class MainActivity : AppCompatActivity() {
                         "Add",
                         DialogInterface.OnClickListener { dialog, id ->
                             gameUrl = editTextDialog.text.toString()
-                            parseUrl(gameUrl)
+                            applicationScope.launch { insertGame(parseUrl(gameUrl)) }
                             dialog.dismiss()
                             Toast.makeText(applicationContext, gameUrl, Toast.LENGTH_SHORT).show()
                         })
@@ -81,7 +83,8 @@ class MainActivity : AppCompatActivity() {
             dialog.show()
         }
 
-        val itemTouchHelperCallback = object: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        val itemTouchHelperCallback = object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -94,43 +97,40 @@ class MainActivity : AppCompatActivity() {
                 gameViewModel.delete(adapter.gameData.get(viewHolder.absoluteAdapterPosition))
                 adapter.gameData.remove(adapter.gameData.get(viewHolder.absoluteAdapterPosition))
                 adapter.notifyDataSetChanged()
-                Toast.makeText(applicationContext,"Game deleted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Game deleted", Toast.LENGTH_SHORT).show()
             }
         }
 
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
+        gameViewModel.gamesAndPricesList.observe(this, Observer {
+            applicationScope.launch { insertPrice(it) }
+        })
+
     }
 
-    private fun parseUrl(url: String) {
-        MainScope().launch {
-            val parser = getSteamParser(url)
-
-            appid = parser.getAppId()
-            name = parser.getName()
-            originalPrice = parser.getInitialPrice()
-            currentPrice = parser.getFinalPrice()
-            discount = parser.getDiscount()
-            imageUrl = parser.getImageUrl()
-            isWindows = parser.isWindows()
-            isMac = parser.isMac()
-            isLinux = parser.isLinux()
-
-            insertGame()
-
-            Log.d("onCreate", "\n" + "------------------------------------------" + "\n")
-            Log.d("onCreate", "$appid \n")
-            Log.d("onCreate", "$name \n")
-            Log.d("onCreate", "$originalPrice \n")
-            Log.d("onCreate", "$currentPrice \n")
-            Log.d("onCreate", "$discount \n")
-            Log.d("onCreate", "$imageUrl \n")
-            Log.d("onCreate", "$isWindows \n")
-            Log.d("onCreate", "$isMac \n")
-            Log.d("onCreate", "$isLinux \n")
-            Log.d("onCreate", "\n" + "------------------------------------------" + "\n")
+    private suspend fun insertPrice(gameList: List<GameAndPrice>) {
+        withContext(Dispatchers.IO) {
+            for (game in gameList) {
+                val parser = parseUrl(game.game.gameUrl)
+                val price = Price(
+                    0,
+                    Integer.valueOf(parser.getAppId()),
+                    parser.getInitialPrice(),
+                    parser.getFinalPrice(),
+                    parser.getDiscount(),
+                    getDateString()
+                )
+                if (game.listPrice.last().date != getDateString()) {
+                    gameViewModel.insert(price)
+                }
+            }
         }
+    }
+
+    private suspend fun parseUrl(url: String): JsonSteamParser {
+        return getSteamParser(url)
     }
 
     private suspend fun getSteamParser(url: String): JsonSteamParser {
@@ -153,11 +153,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun insertGame() {
+    private fun insertGame(parser: JsonSteamParser) {
+
+        appid = parser.getAppId()
+        name = parser.getName()
+        originalPrice = parser.getInitialPrice()
+        currentPrice = parser.getFinalPrice()
+        discount = parser.getDiscount()
+        imageUrl = parser.getImageUrl()
+        isWindows = parser.isWindows()
+        isMac = parser.isMac()
+        isLinux = parser.isLinux()
+
+        Log.d("onCreate", "\n" + "------------------------------------------" + "\n")
+        Log.d("onCreate", "$appid \n")
+        Log.d("onCreate", "$name \n")
+        Log.d("onCreate", "$originalPrice \n")
+        Log.d("onCreate", "$currentPrice \n")
+        Log.d("onCreate", "$discount \n")
+        Log.d("onCreate", "$imageUrl \n")
+        Log.d("onCreate", "$isWindows \n")
+        Log.d("onCreate", "$isMac \n")
+        Log.d("onCreate", "$isLinux \n")
+        Log.d("onCreate", "\n" + "------------------------------------------" + "\n")
 
         val date = getDateString()
-        val game: Game = Game(Integer.valueOf(appid), name, imageUrl, isWindows, isMac, isLinux, gameUrl)
-        val price: Price = Price(0, Integer.valueOf(appid), originalPrice, currentPrice, discount, date)
+        val game: Game =
+            Game(Integer.valueOf(appid), name, imageUrl, isWindows, isMac, isLinux, gameUrl)
+        val price: Price =
+            Price(0, Integer.valueOf(appid), originalPrice, currentPrice, discount, date)
 
         Log.d("onCreate", "date = ${getDateString()}")
 

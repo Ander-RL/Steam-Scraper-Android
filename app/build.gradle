@@ -72,6 +72,9 @@ dependencies {
     // Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$roomVersion"
 
+    // Lifecycle Service
+    implementation "androidx.lifecycle:lifecycle-extensions:2.0.0"
+
     // Default dependencies
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.2.0'

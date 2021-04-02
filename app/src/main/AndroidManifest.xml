@@ -3,6 +3,7 @@
     package="com.arl.steamscraper">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".GameScraperApplication"
@@ -19,6 +20,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name=".AlertReceiver" />
+        <service android:name=".PriceService"/>
     </application>
+
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.arl.steamscraper
+package com.arl.steamscraper.data
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData

@@ -34,7 +34,7 @@ interface GameDao {
     fun getAllPrices(): LiveData<List<Price>>
 
     @Transaction
-    @Query("SELECT * FROM game_table JOIN price_table  WHERE appId = priceAppId ORDER BY currentPrice ASC")
+    @Query("SELECT * FROM game_table JOIN price_table  WHERE appId = priceAppId GROUP BY appId ORDER BY currentPrice ASC")
     //@Query("SELECT * FROM game_table ORDER BY name ASC")
     fun getAllGamesAndPrices(): LiveData<List<GameAndPrice>>
 

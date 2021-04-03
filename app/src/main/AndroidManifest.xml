@@ -21,7 +21,6 @@
             </intent-filter>
         </activity>
         <receiver android:name=".AlertReceiver" />
-        <service android:name=".PriceService"/>
     </application>
 
 

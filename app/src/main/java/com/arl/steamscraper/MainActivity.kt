@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.icu.util.TimeUnit
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +18,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.*
 import com.arl.steamscraper.data.entity.Game
 import com.arl.steamscraper.data.entity.Price
 import com.arl.steamscraper.data.entity.relations.GameAndPrice
@@ -24,7 +26,10 @@ import com.arl.steamscraper.rds.JsonSteamParser
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import java.net.URL
+import java.time.Duration
+import java.time.temporal.TemporalAmount
 import java.util.*
+import kotlin.time.DurationUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -107,13 +112,6 @@ class MainActivity : AppCompatActivity() {
 
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
-
-        // Checks prices and inserts a new one every time App is opened
-        /*gameViewModel.gamesAndPricesList.observe(this, Observer {
-            applicationScope.launch { insertPrice(it) }
-        })*/
-
-        //checkPrices(Calendar.getInstance())
 
         // Daily price check
         startAlarm(Calendar.getInstance())
@@ -230,28 +228,7 @@ class MainActivity : AppCompatActivity() {
         if (alarmManager != null && pendingIntent != null) {
             // Setting the alarm to 10:00 every day
             c.set(Calendar.HOUR_OF_DAY, 10)
-            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis + (24*60*60*1000), AlarmManager.INTERVAL_DAY, pendingIntent)
-            Log.d("PriceService", "alarmManager")
-        }
-    }
-
-    private fun checkPrices(c: Calendar) {
-
-        val intent = Intent(applicationContext, AlertReceiver::class.java)
-        intent.putExtra("daily_check", "daily_check")
-
-        Log.d("PriceService", "checkPrices")
-
-        val alarmManager =
-            applicationContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-
-        val pendingIntent = PendingIntent.getBroadcast(
-            applicationContext, 1,
-            intent, PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        if (alarmManager != null && pendingIntent != null) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.timeInMillis, pendingIntent)
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
             Log.d("PriceService", "alarmManager")
         }
     }

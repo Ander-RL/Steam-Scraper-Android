@@ -1,43 +1,36 @@
 package com.arl.steamscraper
 
-import android.app.Notification
-import android.content.Intent
-import android.os.Build
+import android.content.Context
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.lifecycle.*
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.arl.steamscraper.data.GameRepository
 import com.arl.steamscraper.data.entity.Price
 import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import com.arl.steamscraper.rds.JsonSteamParser
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.URL
 import java.util.*
 
-class PriceService : LifecycleService() {
+class PriceCheckWorker(appContext: Context, workerParams: WorkerParameters): Worker(appContext, workerParams) {
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun doWork(): Result {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startMyForeground()
-        } else {
-            startForeground(3, Notification())
-        }
-    }
+        Log.d("PriceCheckWorker", "doWork")
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val repository = (applicationContext as GameScraperApplication).repository
 
-        Log.d("PriceService", "PriceService --> onStartCommand")
-
-        val repository = (application as GameScraperApplication).repository
-
-        lifecycleScope.launch {
+        MainScope().launch {
             val games = repository.getAllGamesAndPricesList() as ArrayList<GameAndPrice>
             insertPrice(games, repository)
+            Log.d("PriceCheckWorker", "inside Coroutine")
+            Log.d("PriceCheckWorker", "$games")
         }
 
-        return super.onStartCommand(intent, flags, startId)
+        return Result.success()
     }
 
     private suspend fun insertPrice(gameList: List<GameAndPrice>, repository: GameRepository) {
@@ -112,12 +105,5 @@ class PriceService : LifecycleService() {
         val year = c.get(Calendar.YEAR)
 
         return "$day/$month/$year"
-    }
-
-    private fun startMyForeground() {
-        val notificationHelper = NotificationHelper(this, "Fetching data", "Updating game prices", 4)
-        val nb: NotificationCompat.Builder = notificationHelper.getNotificationChannel()
-        notificationHelper.getManager().notify(4, nb.build())
-        startForeground(4, nb.build())
     }
 }

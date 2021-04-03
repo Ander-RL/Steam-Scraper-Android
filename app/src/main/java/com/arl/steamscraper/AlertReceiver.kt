@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 
 class AlertReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -11,9 +14,10 @@ class AlertReceiver: BroadcastReceiver() {
         if (intent != null) {
             if(intent.extras?.containsKey("daily_check") == true){
                 Log.d("PriceService", "AlertReceiver --> startService")
-                val intentService = Intent(context, PriceService::class.java)
-                intentService.action = ".PriceService"
-                context?.startService(intentService)
+                val checkPriceWorkRequest: WorkRequest = OneTimeWorkRequestBuilder<PriceCheckWorker>().build()
+                if (context != null) {
+                    WorkManager.getInstance(context).enqueue(checkPriceWorkRequest)
+                }
             }
         }
     }

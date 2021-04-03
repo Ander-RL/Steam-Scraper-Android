@@ -10,11 +10,11 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 
-class NotificationHelper(context: Context?, private val gameInfo: String, private val id: Int) : ContextWrapper(context) {
+class NotificationHelper(context: Context?, private val notificationTitle: String, private val gameInfo: String, private val id: Int) : ContextWrapper(context) {
 
     private val channelId = "sales_notification"
     private val channelName = "Sales Notification"
-    private val notificationTitle = "Game on sale!"
+    //private val notificationTitle = "Game on sale!"
     private var manager: NotificationManager? = null
 
     init {

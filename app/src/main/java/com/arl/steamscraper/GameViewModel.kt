@@ -23,7 +23,7 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
     fun delete(game: Game) = viewModelScope.launch { repository.delete(game) }
     fun deleteAllGames()   = viewModelScope.launch { repository.deleteAllGames() }
     //fun getAllGames() = viewModelScope.launch { repository.getAllGames() }
-    fun getAllGamesAndPrices(appId: Int): LiveData<List<GameAndPrice>> = repository.getAllGamesAndPrices(appId)
+    fun getAllGamesAndPricesList() = viewModelScope.launch { repository.getAllGamesAndPricesList() }
 }
 
 class GameViewModelFactory(private val repository: GameRepository) : ViewModelProvider.Factory {

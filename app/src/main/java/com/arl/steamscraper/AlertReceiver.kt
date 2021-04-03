@@ -12,7 +12,7 @@ class AlertReceiver: BroadcastReceiver() {
             if(intent.extras?.containsKey("daily_check") == true){
                 Log.d("PriceService", "AlertReceiver --> startService")
                 val intentService = Intent(context, PriceService::class.java)
-                intentService.action = ".classes.PriceService"
+                intentService.action = ".PriceService"
                 context?.startService(intentService)
             }
         }

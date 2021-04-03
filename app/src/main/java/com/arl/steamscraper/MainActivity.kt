@@ -109,9 +109,11 @@ class MainActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
         // Checks prices and inserts a new one every time App is opened
-        gameViewModel.gamesAndPricesList.observe(this, Observer {
+        /*gameViewModel.gamesAndPricesList.observe(this, Observer {
             applicationScope.launch { insertPrice(it) }
-        })
+        })*/
+
+        //checkPrices(Calendar.getInstance())
 
         // Daily price check
         startAlarm(Calendar.getInstance())
@@ -222,13 +224,35 @@ class MainActivity : AppCompatActivity() {
 
         val pendingIntent = PendingIntent.getBroadcast(
             applicationContext, 0,
-            intent, PendingIntent.FLAG_ONE_SHOT
+            intent, PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         if (alarmManager != null && pendingIntent != null) {
-            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis, (24*3600*1000), pendingIntent)
+            // Setting the alarm to 10:00 every day
+            c.set(Calendar.HOUR_OF_DAY, 10)
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis + (24*60*60*1000), AlarmManager.INTERVAL_DAY, pendingIntent)
             Log.d("PriceService", "alarmManager")
-            //alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.timeInMillis, pendingIntent)
+        }
+    }
+
+    private fun checkPrices(c: Calendar) {
+
+        val intent = Intent(applicationContext, AlertReceiver::class.java)
+        intent.putExtra("daily_check", "daily_check")
+
+        Log.d("PriceService", "checkPrices")
+
+        val alarmManager =
+            applicationContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext, 1,
+            intent, PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        if (alarmManager != null && pendingIntent != null) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.timeInMillis, pendingIntent)
+            Log.d("PriceService", "alarmManager")
         }
     }
 }

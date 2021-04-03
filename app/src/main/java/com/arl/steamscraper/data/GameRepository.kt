@@ -15,8 +15,8 @@ class GameRepository(private val gameDao: GameDao) {
 
     // Room executes all queries on a separate thread.
     val getAllGames: LiveData<List<Game>> = gameDao.getAllGames()
-    val getAllPrices: LiveData<List<Price>>  = gameDao.getAllPrices()
-    val getAllGamesAndPrices: LiveData<List<GameAndPrice>>  = gameDao.getAllGamesAndPrices()
+    val getAllPrices: LiveData<List<Price>> = gameDao.getAllPrices()
+    val getAllGamesAndPrices: LiveData<List<GameAndPrice>> = gameDao.getAllGamesAndPrices()
 
     // By default Room runs suspend queries off the main thread, therefore, we don't need to
     // implement anything else to ensure we're not doing long running database work
@@ -63,14 +63,10 @@ class GameRepository(private val gameDao: GameDao) {
         }
     }
 
-    /*@WorkerThread
-    suspend fun getAllGames(): List<Game> {
+    @WorkerThread
+    suspend fun getAllGamesAndPricesList(): List<GameAndPrice> {
         return withContext(Dispatchers.IO) {
-            gameDao.getAllGames()
+            gameDao.getAllGamesAndPricesList()
         }
-    }*/
-
-    fun getAllGamesAndPrices(appId: Int): LiveData<List<GameAndPrice>> {
-        return gameDao.getAllGamesAndPrices(appId)
     }
 }

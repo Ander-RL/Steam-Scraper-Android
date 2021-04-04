@@ -30,11 +30,9 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
             if (!gameData.contains(element.game)) {
                 gameData.add(element.game)
                 listPrice[element.game] = element.listPrice
-                Log.d("RCV", element.game.toString())
             }
         }
         Log.d("RCV", listPrice.toString())
-        //gameData = games
         notifyDataSetChanged()
     }
 
@@ -100,7 +98,6 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
                 viewHolder.ivGameImage.setImageDrawable(image)
             }
         } catch (e: Exception) {
-            Log.d("RVAdapter", e.toString())
         }
 
         if (currentItem.isWindows) {

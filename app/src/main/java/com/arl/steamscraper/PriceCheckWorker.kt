@@ -19,15 +19,11 @@ class PriceCheckWorker(appContext: Context, workerParams: WorkerParameters): Wor
 
     override fun doWork(): Result {
 
-        Log.d("PriceCheckWorker", "doWork")
-
         val repository = (applicationContext as GameScraperApplication).repository
 
         MainScope().launch {
             val games = repository.getAllGamesAndPricesList() as ArrayList<GameAndPrice>
             insertPrice(games, repository)
-            Log.d("PriceCheckWorker", "inside Coroutine")
-            Log.d("PriceCheckWorker", "$games")
         }
 
         return Result.success()
@@ -37,8 +33,6 @@ class PriceCheckWorker(appContext: Context, workerParams: WorkerParameters): Wor
 
         withContext(Dispatchers.IO) {
             for ((counter, game) in gameList.withIndex()) {
-                Log.d("insertPrice", game.game.toString())
-                Log.d("insertPrice", game.listPrice.toString())
                 val parser = parseUrl(game.game.gameUrl)
                 val price = Price(
                     0,
@@ -48,10 +42,8 @@ class PriceCheckWorker(appContext: Context, workerParams: WorkerParameters): Wor
                     parser.getDiscount(),
                     getDateString()
                 )
-                Log.d("insertPrice", "new Price = $price")
 
                 if (price.currentPrice <= game.listPrice.last().currentPrice) {
-                    Log.d("insertPrice", "Sending Notification")
                     val gameName = game.game.name
                     val gamePrice = price.currentPrice
                     val gameDiscount = price.discount
@@ -67,7 +59,6 @@ class PriceCheckWorker(appContext: Context, workerParams: WorkerParameters): Wor
                 }
 
                 if (game.listPrice.last().date != getDateString()) {
-                    Log.d("insertPrice", "<--- Inserting new Price --->")
                     repository.insert(price)
                 }
             }
@@ -85,15 +76,12 @@ class PriceCheckWorker(appContext: Context, workerParams: WorkerParameters): Wor
 
         urlParsed = "https://store.steampowered.com/api/appdetails/?appids=$urlParsed"
 
-        Log.d("getSteamParser", urlParsed)
-
         val api = getNetworkRequest(urlParsed)
         return JsonSteamParser(urlParsed, api)
     }
 
     private suspend fun getNetworkRequest(url: String): String {
         return withContext(Dispatchers.IO) {
-            Log.d("getNetworkRequest", "Current thread = " + Thread.currentThread().name)
             URL(url).readText()
         }
     }

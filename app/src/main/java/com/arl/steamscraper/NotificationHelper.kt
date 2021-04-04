@@ -14,7 +14,6 @@ class NotificationHelper(context: Context?, private val notificationTitle: Strin
 
     private val channelId = "sales_notification"
     private val channelName = "Sales Notification"
-    //private val notificationTitle = "Game on sale!"
     private var manager: NotificationManager? = null
 
     init {

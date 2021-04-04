@@ -154,7 +154,6 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun getNetworkRequest(url: String): String {
         return withContext(Dispatchers.IO) {
-            Log.d("onCreate", "Current thread = " + Thread.currentThread().name)
             URL(url).readText()
         }
     }
@@ -171,25 +170,11 @@ class MainActivity : AppCompatActivity() {
         isMac = parser.isMac()
         isLinux = parser.isLinux()
 
-        Log.d("onCreate", "\n" + "------------------------------------------" + "\n")
-        Log.d("onCreate", "$appid \n")
-        Log.d("onCreate", "$name \n")
-        Log.d("onCreate", "$originalPrice \n")
-        Log.d("onCreate", "$currentPrice \n")
-        Log.d("onCreate", "$discount \n")
-        Log.d("onCreate", "$imageUrl \n")
-        Log.d("onCreate", "$isWindows \n")
-        Log.d("onCreate", "$isMac \n")
-        Log.d("onCreate", "$isLinux \n")
-        Log.d("onCreate", "\n" + "------------------------------------------" + "\n")
-
         val date = getDateString()
         val game: Game =
             Game(Integer.valueOf(appid), name, imageUrl, isWindows, isMac, isLinux, gameUrl)
         val price: Price =
             Price(0, Integer.valueOf(appid), originalPrice, currentPrice, discount, date)
-
-        Log.d("onCreate", "date = ${getDateString()}")
 
         gameViewModel.insert(game)
         gameViewModel.insert(price)
@@ -211,8 +196,6 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(applicationContext, AlertReceiver::class.java)
         intent.putExtra("daily_check", "daily_check")
 
-        Log.d("PriceService", "startAlarm")
-
         val alarmManager =
             applicationContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
 
@@ -224,8 +207,7 @@ class MainActivity : AppCompatActivity() {
         if (alarmManager != null && pendingIntent != null) {
             // Setting the alarm to 10:00 every day
             c.set(Calendar.HOUR_OF_DAY, 10)
-            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
-            Log.d("PriceService", "alarmManager")
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis + (24*60*60*1000), AlarmManager.INTERVAL_DAY, pendingIntent)
         }
     }
 }

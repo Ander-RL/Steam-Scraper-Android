@@ -21,6 +21,9 @@
             </intent-filter>
         </activity>
         <receiver android:name=".AlertReceiver" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-7592131295820676~3811564337"/>
     </application>
 
 

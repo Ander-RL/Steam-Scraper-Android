@@ -23,6 +23,9 @@ import com.arl.steamscraper.data.entity.Game
 import com.arl.steamscraper.data.entity.Price
 import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import com.arl.steamscraper.rds.JsonSteamParser
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import java.net.URL
@@ -46,9 +49,17 @@ class MainActivity : AppCompatActivity() {
     private var isMac: Boolean = false
     private var isLinux: Boolean = false
 
+    lateinit var adView: AdView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        MobileAds.initialize(this) {}
+
+        adView = findViewById(R.id.adViewBanner)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
 
         val fab: FloatingActionButton = findViewById(R.id.btn_fab)
 
@@ -113,30 +124,15 @@ class MainActivity : AppCompatActivity() {
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
+        // Click listener for each card
+        adapter.setOnItemClickListener(object: RVAdapter.OnItemClickListener {
+            override fun onItemClick(game: Game) {
+                // Toast.makeText(applicationContext, "Listener", Toast.LENGTH_SHORT).show()
+            }
+        })
+
         // Daily price check
         startAlarm(Calendar.getInstance())
-    }
-
-    private suspend fun insertPrice(gameList: List<GameAndPrice>) {
-        withContext(Dispatchers.IO) {
-            for (game in gameList) {
-                Log.d("insertPrice", game.game.name + " --- " + getDateString())
-                Log.d("insertPrice", game.listPrice.toString())
-                val parser = parseUrl(game.game.gameUrl)
-                val price = Price(
-                    0,
-                    Integer.valueOf(parser.getAppId()),
-                    parser.getInitialPrice(),
-                    parser.getFinalPrice(),
-                    parser.getDiscount(),
-                    getDateString()
-                )
-                Log.d("insertPrice", price.toString())
-                if (game.listPrice.last().date != getDateString()) {
-                    gameViewModel.insert(price)
-                }
-            }
-        }
     }
 
     private suspend fun parseUrl(url: String): JsonSteamParser {
@@ -228,7 +224,7 @@ class MainActivity : AppCompatActivity() {
         if (alarmManager != null && pendingIntent != null) {
             // Setting the alarm to 10:00 every day
             c.set(Calendar.HOUR_OF_DAY, 10)
-            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis + (24*60*60*1000), AlarmManager.INTERVAL_DAY, pendingIntent)
             Log.d("PriceService", "alarmManager")
         }
     }

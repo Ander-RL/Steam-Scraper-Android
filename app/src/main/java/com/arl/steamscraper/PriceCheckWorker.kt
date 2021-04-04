@@ -51,6 +51,7 @@ class PriceCheckWorker(appContext: Context, workerParams: WorkerParameters): Wor
                 Log.d("insertPrice", "new Price = $price")
 
                 if (price.currentPrice <= game.listPrice.last().currentPrice) {
+                    Log.d("insertPrice", "Sending Notification")
                     val gameName = game.game.name
                     val gamePrice = price.currentPrice
                     val gameDiscount = price.discount

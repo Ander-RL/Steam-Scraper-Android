@@ -1,8 +1,6 @@
 package com.arl.steamscraper
 
-import android.app.Application
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.util.Log
@@ -13,20 +11,19 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.content.res.ResourcesCompat.getColor
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
 import com.arl.steamscraper.data.entity.Price
 import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import kotlinx.coroutines.*
 import java.io.InputStream
-import java.lang.Exception
 import java.net.URL
 
 class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
 
     var gameData = arrayListOf<Game>()
     var listPrice = HashMap<Game, List<Price>>()
+    private var listener: OnItemClickListener? = null
 
     fun setData(games: List<GameAndPrice>) {
         for (element in games) {
@@ -51,7 +48,7 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
     }
 
     // Nested class
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivGameImage: ImageView
         val ivGamePlatform1: ImageView
         val ivGamePlatform2: ImageView
@@ -71,6 +68,13 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
             tvPriceOriginal = view.findViewById(R.id.tv_price_original)
             tvPriceDiscount = view.findViewById(R.id.tv_price_discount)
             tvDiscount = view.findViewById(R.id.tv_discount)
+
+            view.setOnClickListener {
+                val position = absoluteAdapterPosition
+                if (listener != null && position != RecyclerView.NO_POSITION) {
+                    listener!!.onItemClick(gameData[position])
+                }
+            }
         }
     }
 
@@ -160,9 +164,6 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
                 } else {
                     viewHolder.tvPriceOriginal.text = originalFormatted
                 }
-
-                //Log.d("RVAdapter", currentItem.toString())
-                //Log.d("RVAdapter", currentItem.listPrice.toString())
             }
         }
 
@@ -170,5 +171,13 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
 
     // Return the size of your dataset (invoked by the layout manager)
     override fun getItemCount() = gameData.size
+
+    interface OnItemClickListener {
+        fun onItemClick(game: Game)
+    }
+
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        this.listener = listener
+    }
 
 }

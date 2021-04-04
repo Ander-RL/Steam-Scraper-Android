@@ -10,4 +10,7 @@
     <color name="green">#449F21</color>
     <color name="red">#B71C1C</color>
     <color name="steam_blue">#0CA9C5</color>
+    <color name="steam_blue_dark">#0464A4</color>
+    <color name="steam_blue_very_dark">#044570</color>
+    <color name="steam_blue_background">#012841</color>
 </resources>

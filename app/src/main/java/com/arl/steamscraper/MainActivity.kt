@@ -224,7 +224,7 @@ class MainActivity : AppCompatActivity() {
         if (alarmManager != null && pendingIntent != null) {
             // Setting the alarm to 10:00 every day
             c.set(Calendar.HOUR_OF_DAY, 10)
-            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis + (24*60*60*1000), AlarmManager.INTERVAL_DAY, pendingIntent)
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
             Log.d("PriceService", "alarmManager")
         }
     }

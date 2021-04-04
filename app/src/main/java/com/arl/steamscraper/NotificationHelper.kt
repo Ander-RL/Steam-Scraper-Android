@@ -50,7 +50,7 @@ class NotificationHelper(context: Context?, private val notificationTitle: Strin
         return NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle(notificationTitle)
             .setContentText(gameInfo)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_notification)
             .setColor(resources.getColor(R.color.steam_blue, null))
             .setContentIntent(pendingIntent).
             setAutoCancel(true)

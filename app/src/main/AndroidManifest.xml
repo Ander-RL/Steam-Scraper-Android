@@ -23,8 +23,12 @@
         <receiver android:name=".AlertReceiver" />
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-7592131295820676~3811564337"/>
+            android:value="ca-app-pub-7592131295820676/2284867859"/>
     </application>
 
+    <!-- Test data for Admob
+    <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-7592131295820676~3811564337"/> -->
 
 </manifest>

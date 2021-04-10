@@ -5,9 +5,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.icu.util.TimeUnit
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.EditText
@@ -18,21 +18,17 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.work.*
 import com.arl.steamscraper.data.entity.Game
 import com.arl.steamscraper.data.entity.Price
-import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import com.arl.steamscraper.rds.JsonSteamParser
+import com.arl.steamscraper.receiver.AlertReceiver
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import java.net.URL
-import java.time.Duration
-import java.time.temporal.TemporalAmount
 import java.util.*
-import kotlin.time.DurationUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -55,18 +51,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        MobileAds.initialize(this) {}
+        val applicationScope = MainScope()
+        val context = applicationContext
 
-        adView = findViewById(R.id.adViewBanner)
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
+        applicationScope.launch {
+            MobileAds.initialize(context) {}
+            adView = findViewById(R.id.adViewBanner)
+            val adRequest = AdRequest.Builder().build()
+            adView.loadAd(adRequest)
+        }
 
         val fab: FloatingActionButton = findViewById(R.id.btn_fab)
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
+        recyclerView.setHasFixedSize(true)
         val adapter = RVAdapter(applicationContext)
-
-        val applicationScope = MainScope()
 
         gameViewModel.gamesAndPricesList.observe(this, Observer { adapter.setData(it) })
 
@@ -89,9 +88,25 @@ class MainActivity : AppCompatActivity() {
                         "Add",
                         DialogInterface.OnClickListener { dialog, id ->
                             gameUrl = editTextDialog.text.toString()
-                            applicationScope.launch { insertGame(parseUrl(gameUrl)) }
+                            if (!editTextDialog.text.isEmpty()) {
+                                if (!editTextDialog.text.contains("https://store.steampowered.com/app/")) {
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Please, insert a correct URL",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    applicationScope.launch { insertGame(parseUrl(gameUrl)) }
+                                    Toast.makeText(applicationContext, gameUrl, Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(
+                                    applicationContext,
+                                    "Please, insert a value",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                             dialog.dismiss()
-                            Toast.makeText(applicationContext, gameUrl, Toast.LENGTH_SHORT).show()
                         })
                     setNegativeButton(
                         "Cancel",
@@ -125,7 +140,7 @@ class MainActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
         // Click listener for each card
-        adapter.setOnItemClickListener(object: RVAdapter.OnItemClickListener {
+        adapter.setOnItemClickListener(object : RVAdapter.OnItemClickListener {
             override fun onItemClick(game: Game) {
                 // Toast.makeText(applicationContext, "Listener", Toast.LENGTH_SHORT).show()
             }
@@ -205,9 +220,13 @@ class MainActivity : AppCompatActivity() {
         )
 
         if (alarmManager != null && pendingIntent != null) {
-            // Setting the alarm to 10:00 every day
             c.set(Calendar.HOUR_OF_DAY, 10)
-            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis + (24*60*60*1000), AlarmManager.INTERVAL_DAY, pendingIntent)
+            alarmManager.setInexactRepeating(
+                AlarmManager.RTC_WAKEUP,
+                c.timeInMillis + (24 * 60 * 60 * 1000),
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+            )
         }
     }
 }

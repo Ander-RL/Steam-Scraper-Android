@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
 import com.arl.steamscraper.data.entity.Price
@@ -27,12 +28,13 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
 
     fun setData(games: List<GameAndPrice>) {
         for (element in games) {
+            Log.d("RVAdapter", element.toString())
             if (!gameData.contains(element.game)) {
                 gameData.add(element.game)
                 listPrice[element.game] = element.listPrice
             }
         }
-        Log.d("RCV", listPrice.toString())
+        Log.d("RVAdapter", listPrice.toString())
         notifyDataSetChanged()
     }
 
@@ -93,6 +95,7 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
         val currentItem = gameData[position]
 
         try {
+
             MainScope().launch {
                 val image = loadImageFromWeb(currentItem.imageUrl)
                 viewHolder.ivGameImage.setImageDrawable(image)

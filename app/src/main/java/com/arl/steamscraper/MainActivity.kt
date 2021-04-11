@@ -7,7 +7,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.EditText
@@ -25,9 +24,11 @@ import com.arl.steamscraper.receiver.AlertReceiver
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.*
 import java.net.URL
+import android.net.Uri
+import java.lang.Exception
 import java.util.*
 
 
@@ -46,12 +47,17 @@ class MainActivity : AppCompatActivity() {
     private var isLinux: Boolean = false
 
     lateinit var adView: AdView
+    lateinit var applicationScope: CoroutineScope
+
+    companion object {
+        const val REQUEST_CODE = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val applicationScope = MainScope()
+        applicationScope = MainScope()
         val context = applicationContext
 
         applicationScope.launch {
@@ -61,7 +67,7 @@ class MainActivity : AppCompatActivity() {
             adView.loadAd(adRequest)
         }
 
-        val fab: FloatingActionButton = findViewById(R.id.btn_fab)
+        val fab: ExtendedFloatingActionButton = findViewById(R.id.btn_fab)
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
         recyclerView.setHasFixedSize(true)
@@ -72,50 +78,9 @@ class MainActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        fab.setOnClickListener { btn: View ->
-            // 1. Instantiate an AlertDialog.Builder with its constructor
-            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-
-            val editTextDialog: EditText = EditText(this)
-            editTextDialog.hint = "Enter a game URL"
-
-            builder.setView(editTextDialog)
-
-            // 2. Chain together various setter methods to set the dialog characteristics
-            builder.setTitle("Add a Game")
-                .apply {
-                    setPositiveButton(
-                        "Add",
-                        DialogInterface.OnClickListener { dialog, id ->
-                            gameUrl = editTextDialog.text.toString()
-                            if (!editTextDialog.text.isEmpty()) {
-                                if (!editTextDialog.text.contains("https://store.steampowered.com/app/")) {
-                                    Toast.makeText(
-                                        applicationContext,
-                                        "Please, insert a correct URL",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    applicationScope.launch { insertGame(parseUrl(gameUrl)) }
-                                    Toast.makeText(applicationContext, gameUrl, Toast.LENGTH_SHORT).show()
-                                }
-                            } else {
-                                Toast.makeText(
-                                    applicationContext,
-                                    "Please, insert a value",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            dialog.dismiss()
-                        })
-                    setNegativeButton(
-                        "Cancel",
-                        DialogInterface.OnClickListener { dialog, id -> dialog.dismiss() })
-                }
-
-            // 3. Get the AlertDialog from create()
-            val dialog: AlertDialog = builder.create()
-            dialog.show()
+        fab.setOnClickListener {
+            val intent = Intent(this, WebViewActivity::class.java)
+            startActivityForResult(intent, REQUEST_CODE)
         }
 
         val itemTouchHelperCallback = object :
@@ -173,7 +138,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun insertGame(parser: JsonSteamParser) {
+    private suspend fun insertGame(parser: JsonSteamParser) {
 
         appid = parser.getAppId()
         name = parser.getName()
@@ -188,6 +153,9 @@ class MainActivity : AppCompatActivity() {
         val date = getDateString()
         val game: Game =
             Game(Integer.valueOf(appid), name, imageUrl, isWindows, isMac, isLinux, gameUrl)
+
+        delay(500)
+
         val price: Price =
             Price(0, Integer.valueOf(appid), originalPrice, currentPrice, discount, date)
 
@@ -227,6 +195,21 @@ class MainActivity : AppCompatActivity() {
                 AlarmManager.INTERVAL_DAY,
                 pendingIntent
             )
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        try {
+            super.onActivityResult(requestCode, resultCode, data)
+
+            if(requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+                val gameUrl = data?.getStringExtra("url").toString()
+                Toast.makeText(this, gameUrl, Toast.LENGTH_LONG).show()
+                applicationScope.launch { insertGame(parseUrl(gameUrl)) }
+            }
+
+        } catch (e: Exception) {
+            Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show()
         }
     }
 }

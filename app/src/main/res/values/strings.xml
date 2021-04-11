@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Steam Scraper</string>
+
+    <!-- BUTTONS -->
+    <string name="add_a_game_fab">Add a game</string>
+    <string name="add_game_fab">Add game</string>
+    <string name="back_menu_button">back</string>
+    <string name="forth_menu_button">forth</string>
+    <string name="refresh_menu_button">refresh</string>
 </resources>

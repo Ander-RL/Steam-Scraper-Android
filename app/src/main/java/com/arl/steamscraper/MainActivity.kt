@@ -28,6 +28,7 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import kotlinx.coroutines.*
 import java.net.URL
 import android.net.Uri
+import androidx.work.*
 import java.lang.Exception
 import java.util.*
 
@@ -113,6 +114,8 @@ class MainActivity : AppCompatActivity() {
 
         // Daily price check
         startAlarm(Calendar.getInstance())
+        // Update price when App opens
+        updatePrices()
     }
 
     private suspend fun parseUrl(url: String): JsonSteamParser {
@@ -202,8 +205,8 @@ class MainActivity : AppCompatActivity() {
         try {
             super.onActivityResult(requestCode, resultCode, data)
 
-            if(requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-                val gameUrl = data?.getStringExtra("url").toString()
+            if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+                gameUrl = data?.getStringExtra("url").toString()
                 Toast.makeText(this, gameUrl, Toast.LENGTH_LONG).show()
                 applicationScope.launch { insertGame(parseUrl(gameUrl)) }
             }
@@ -211,5 +214,10 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun updatePrices() {
+        val checkPriceWorkRequest: WorkRequest = OneTimeWorkRequestBuilder<PriceCheckWorker>().build()
+        WorkManager.getInstance(applicationContext).enqueue(checkPriceWorkRequest)
     }
 }

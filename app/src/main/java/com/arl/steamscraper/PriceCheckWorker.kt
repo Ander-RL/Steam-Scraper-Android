@@ -2,6 +2,7 @@ package com.arl.steamscraper
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.arl.steamscraper.data.GameRepository

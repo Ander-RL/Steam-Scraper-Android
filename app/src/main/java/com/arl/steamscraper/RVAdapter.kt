@@ -11,7 +11,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
 import com.arl.steamscraper.data.entity.Price
@@ -22,18 +21,20 @@ import java.net.URL
 
 class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
 
-    var gameData = arrayListOf<Game>()
+    //var gameData = arrayListOf<Game>()
+    var gameData = arrayListOf<GameAndPrice>()
     var listPrice = HashMap<Game, List<Price>>()
     private var listener: OnItemClickListener? = null
 
     fun setData(games: List<GameAndPrice>) {
-        for (element in games) {
+        /*for (element in games) {
             Log.d("RVAdapter", element.toString())
             if (!gameData.contains(element.game)) {
                 gameData.add(element.game)
                 listPrice[element.game] = element.listPrice
             }
-        }
+        }*/
+        gameData = games as ArrayList<GameAndPrice>
         Log.d("RVAdapter", listPrice.toString())
         notifyDataSetChanged()
     }
@@ -97,13 +98,13 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
         try {
 
             MainScope().launch {
-                val image = loadImageFromWeb(currentItem.imageUrl)
+                val image = loadImageFromWeb(currentItem.game.imageUrl)
                 viewHolder.ivGameImage.setImageDrawable(image)
             }
         } catch (e: Exception) {
         }
 
-        if (currentItem.isWindows) {
+        if (currentItem.game.isWindows) {
             viewHolder.ivGamePlatform1.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     viewHolder.ivGamePlatform1.resources,
@@ -112,7 +113,7 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
                 )
             )
         }
-        if (currentItem.isMac) {
+        if (currentItem.game.isMac) {
             viewHolder.ivGamePlatform2.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     viewHolder.ivGamePlatform2.resources,
@@ -121,7 +122,7 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
                 )
             )
         }
-        if (currentItem.isLinux) {
+        if (currentItem.game.isLinux) {
             viewHolder.ivGamePlatform3.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     viewHolder.ivGamePlatform3.resources,
@@ -131,41 +132,37 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
             )
         }
 
-        for (game in listPrice) {
-            if (game.key.appId == currentItem.appId) {
-
-                val originalPrice = listPrice.getValue(game.key).last().originalPrice
-                val originalFormatted = "${originalPrice}€"
-                val currentPrice = listPrice.getValue(game.key).last().currentPrice
-                val currentFormatted = "${currentPrice}€"
-                val discount = listPrice.getValue(game.key).last().discount.toString() + "%"
+        val originalPrice = currentItem.listPrice.last().originalPrice
+        val originalFormatted = "${originalPrice}€"
+        val currentPrice = currentItem.listPrice.last().currentPrice
+        val currentFormatted = "${currentPrice}€"
+        val discount = currentItem.listPrice.last().discount.toString() + "%"
 
 
-                viewHolder.tvGameName.text = currentItem.name
-                viewHolder.tvPriceDiscount.text = currentFormatted
-                viewHolder.tvDiscount.text = discount
+        viewHolder.tvGameName.text = currentItem.game.name
+        viewHolder.tvPriceDiscount.text = currentFormatted
+        viewHolder.tvDiscount.text = discount
 
-                if (originalPrice > currentPrice) {
-                    viewHolder.tvPriceOriginal.paintFlags =
-                        (viewHolder.tvPriceOriginal.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG)
-                    viewHolder.tvPriceOriginal.text = originalFormatted
-                    viewHolder.tvPriceOriginal.setTextColor(
-                        ContextCompat.getColor(
-                            context,
-                            R.color.red
-                        )
-                    )
-                    viewHolder.tvPriceDiscount.setTextColor(
-                        ContextCompat.getColor(
-                            context,
-                            R.color.green
-                        )
-                    )
-                } else {
-                    viewHolder.tvPriceOriginal.text = originalFormatted
-                }
-            }
+        if (originalPrice > currentPrice) {
+            viewHolder.tvPriceOriginal.paintFlags =
+                (viewHolder.tvPriceOriginal.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG)
+            viewHolder.tvPriceOriginal.text = originalFormatted
+            viewHolder.tvPriceOriginal.setTextColor(
+                ContextCompat.getColor(
+                    context,
+                    R.color.red
+                )
+            )
+            viewHolder.tvPriceDiscount.setTextColor(
+                ContextCompat.getColor(
+                    context,
+                    R.color.green
+                )
+            )
+        } else {
+            viewHolder.tvPriceOriginal.text = originalFormatted
         }
+
 
     }
 
@@ -173,7 +170,7 @@ class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolde
     override fun getItemCount() = gameData.size
 
     interface OnItemClickListener {
-        fun onItemClick(game: Game)
+        fun onItemClick(game: GameAndPrice)
     }
 
     fun setOnItemClickListener(listener: OnItemClickListener) {

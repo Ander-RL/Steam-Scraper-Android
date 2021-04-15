@@ -3,16 +3,12 @@ package com.arl.steamscraper
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,8 +23,8 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.*
 import java.net.URL
-import android.net.Uri
 import androidx.work.*
+import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import java.lang.Exception
 import java.util.*
 
@@ -95,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                gameViewModel.delete(adapter.gameData.get(viewHolder.absoluteAdapterPosition))
+                gameViewModel.delete(adapter.gameData.get(viewHolder.absoluteAdapterPosition).game)
                 adapter.gameData.remove(adapter.gameData.get(viewHolder.absoluteAdapterPosition))
                 adapter.notifyDataSetChanged()
                 Toast.makeText(applicationContext, "Game deleted", Toast.LENGTH_SHORT).show()
@@ -107,7 +103,7 @@ class MainActivity : AppCompatActivity() {
 
         // Click listener for each card
         adapter.setOnItemClickListener(object : RVAdapter.OnItemClickListener {
-            override fun onItemClick(game: Game) {
+            override fun onItemClick(game: GameAndPrice) {
                 // Toast.makeText(applicationContext, "Listener", Toast.LENGTH_SHORT).show()
             }
         })

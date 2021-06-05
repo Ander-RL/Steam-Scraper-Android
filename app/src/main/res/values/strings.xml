@@ -7,4 +7,12 @@
     <string name="back_menu_button">back</string>
     <string name="forth_menu_button">forth</string>
     <string name="refresh_menu_button">refresh</string>
+
+    <!-- TEXTVIEWS -->
+    <string name="game_name">Game Name</string>
+    <string name="price_discount">Price discount</string>
+    <string name="discount">Discount</string>
+    <string name="date">Date</string>
+    <string name="price_original">Price Original</string>
+
 </resources>

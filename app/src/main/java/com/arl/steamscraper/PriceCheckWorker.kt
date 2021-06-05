@@ -1,14 +1,12 @@
 package com.arl.steamscraper
 
 import android.content.Context
-import android.util.Log
-import android.widget.Toast
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.arl.steamscraper.data.GameRepository
 import com.arl.steamscraper.data.entity.Price
 import com.arl.steamscraper.data.entity.relations.GameAndPrice
-import com.arl.steamscraper.rds.JsonSteamParser
+import com.arl.steamscraper.parser.JsonSteamParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -44,7 +42,7 @@ class PriceCheckWorker(appContext: Context, workerParams: WorkerParameters): Wor
                     getDateString()
                 )
 
-                if (price.currentPrice <= game.listPrice.last().currentPrice) {
+                if (price.currentPrice < game.listPrice.last().currentPrice) {
                     val gameName = game.game.name
                     val gamePrice = price.currentPrice
                     val gameDiscount = price.discount

@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.arl.steamscraper.data.entity.Game
 import com.arl.steamscraper.data.entity.Price
-import com.arl.steamscraper.rds.JsonSteamParser
+import com.arl.steamscraper.parser.JsonSteamParser
 import com.arl.steamscraper.receiver.AlertReceiver
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
@@ -25,6 +25,7 @@ import kotlinx.coroutines.*
 import java.net.URL
 import androidx.work.*
 import com.arl.steamscraper.data.entity.relations.GameAndPrice
+import com.arl.steamscraper.rvAdapters.RVAdapter
 import java.lang.Exception
 import java.util.*
 
@@ -48,6 +49,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val REQUEST_CODE = 1
+        const val TAG_MAIN = "MainActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,10 +57,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         applicationScope = MainScope()
-        val context = applicationContext
+        val appContext = applicationContext
+        val context = this
 
         applicationScope.launch {
-            MobileAds.initialize(context) {}
+            MobileAds.initialize(appContext) {}
             adView = findViewById(R.id.adViewBanner)
             val adRequest = AdRequest.Builder().build()
             adView.loadAd(adRequest)
@@ -104,7 +107,10 @@ class MainActivity : AppCompatActivity() {
         // Click listener for each card
         adapter.setOnItemClickListener(object : RVAdapter.OnItemClickListener {
             override fun onItemClick(game: GameAndPrice) {
-                // Toast.makeText(applicationContext, "Listener", Toast.LENGTH_SHORT).show()
+                val intent = Intent(context, DisplayPriceActivity::class.java)
+                val gameId = game.game.appId
+                intent.putExtra(TAG_MAIN, gameId.toString())
+                startActivity(intent)
             }
         })
 

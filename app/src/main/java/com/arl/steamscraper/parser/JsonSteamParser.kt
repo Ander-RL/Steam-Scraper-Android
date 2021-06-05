@@ -1,4 +1,4 @@
-package com.arl.steamscraper.rds
+package com.arl.steamscraper.parser
 
 import android.util.Log
 

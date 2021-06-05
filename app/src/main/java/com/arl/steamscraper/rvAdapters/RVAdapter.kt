@@ -1,9 +1,8 @@
-package com.arl.steamscraper
+package com.arl.steamscraper.rvAdapters
 
 import android.content.Context
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +11,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.arl.steamscraper.data.entity.Game
-import com.arl.steamscraper.data.entity.Price
+import com.arl.steamscraper.R
 import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import kotlinx.coroutines.*
 import java.io.InputStream
@@ -21,24 +19,13 @@ import java.net.URL
 
 class RVAdapter(val context: Context) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
 
-    //var gameData = arrayListOf<Game>()
     var gameData = arrayListOf<GameAndPrice>()
-    var listPrice = HashMap<Game, List<Price>>()
     private var listener: OnItemClickListener? = null
 
     fun setData(games: List<GameAndPrice>) {
-        /*for (element in games) {
-            Log.d("RVAdapter", element.toString())
-            if (!gameData.contains(element.game)) {
-                gameData.add(element.game)
-                listPrice[element.game] = element.listPrice
-            }
-        }*/
         gameData = games as ArrayList<GameAndPrice>
-        Log.d("RVAdapter", listPrice.toString())
         notifyDataSetChanged()
     }
-
 
     private suspend fun loadImageFromWeb(url: String): Drawable {
         return withContext(Dispatchers.IO) {

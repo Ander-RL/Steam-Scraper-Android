@@ -24,7 +24,6 @@ import java.time.format.DateTimeFormatter
 class RVpriceAdapter(val context: Context) : RecyclerView.Adapter<RVpriceAdapter.ViewHolder>() {
 
     var gameData = arrayListOf<Price>()
-    private var originalPrice: Double = 0.0
     private var listener: OnItemClickListener? = null
 
     fun setData(games: List<Price>) {

@@ -61,7 +61,6 @@ class DisplayPriceActivity : AppCompatActivity()  {
                     priceList = games.listPrice as ArrayList<Price>
                 }
             }
-            adapter.gameName = game?.name.toString()
             adapter.setData(priceList)
         }
     }

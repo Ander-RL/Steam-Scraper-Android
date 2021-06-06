@@ -14,27 +14,18 @@
         app:cardBackgroundColor="@color/white"
         app:cardElevation="2dp">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_margin="5dp">
-
-            <TextView
-                android:id="@+id/tv_game_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="@string/game_name" />
 
             <TextView
                 android:id="@+id/tv_price_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_weight="1"
+                android:layout_gravity="center"
                 android:text="@string/date"
                 android:textStyle="bold" />
 
@@ -42,11 +33,8 @@
                 android:id="@+id/tv_price_original"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_toStartOf="@id/tv_price_date"
+                android:layout_gravity="center"
+                android:layout_weight="1"
                 android:text="@string/price_original"
                 android:textStyle="bold" />
 
@@ -54,11 +42,8 @@
                 android:id="@+id/tv_price_discount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_toStartOf="@id/tv_price_original"
+                android:layout_gravity="center"
+                android:layout_weight="1"
                 android:text="@string/price_discount"
                 android:textStyle="bold" />
 
@@ -66,17 +51,11 @@
                 android:id="@+id/tv_discount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBaseline="@id/tv_price_discount"
-                android:layout_alignParentTop="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="5dp"
-                android:layout_marginBottom="10dp"
-                android:layout_toStartOf="@id/tv_price_discount"
+                android:layout_gravity="center"
+                android:layout_weight="1"
                 android:text="@string/discount"
                 android:textColor="@color/black" />
 
-        </RelativeLayout>
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>

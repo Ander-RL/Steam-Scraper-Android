@@ -22,19 +22,16 @@ import java.net.URL
 class RVpriceAdapter(val context: Context) : RecyclerView.Adapter<RVpriceAdapter.ViewHolder>() {
 
     var gameData = arrayListOf<Price>()
-    var gameName = ""
     private var originalPrice: Double = 0.0
     private var listener: OnItemClickListener? = null
 
     fun setData(games: List<Price>) {
         gameData = games as ArrayList<Price>
         notifyDataSetChanged()
-        Log.d("RV", "List size = ${gameData.size}")
     }
 
     // Nested class
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvGameName: TextView
         val tvPriceOriginal: TextView
         val tvPriceDiscount: TextView
         val tvDiscount: TextView
@@ -42,7 +39,6 @@ class RVpriceAdapter(val context: Context) : RecyclerView.Adapter<RVpriceAdapter
 
         init {
             // Define click listener for the ViewHolder's View.
-            tvGameName = view.findViewById(R.id.tv_game_name)
             tvPriceOriginal = view.findViewById(R.id.tv_price_original)
             tvPriceDiscount = view.findViewById(R.id.tv_price_discount)
             tvDiscount = view.findViewById(R.id.tv_discount)
@@ -82,7 +78,6 @@ class RVpriceAdapter(val context: Context) : RecyclerView.Adapter<RVpriceAdapter
 
 
         viewHolder.tvPriceOriginal.text = originalPrice.toString()
-        viewHolder.tvGameName.text = gameName
         viewHolder.tvPriceDiscount.text = currentFormatted
         viewHolder.tvDiscount.text = discount
         viewHolder.tvDate.text = date // TODO Formatear fecha

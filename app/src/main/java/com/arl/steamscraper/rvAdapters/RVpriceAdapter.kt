@@ -18,6 +18,8 @@ import com.arl.steamscraper.data.entity.relations.GameAndPrice
 import kotlinx.coroutines.*
 import java.io.InputStream
 import java.net.URL
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class RVpriceAdapter(val context: Context) : RecyclerView.Adapter<RVpriceAdapter.ViewHolder>() {
 
@@ -74,8 +76,7 @@ class RVpriceAdapter(val context: Context) : RecyclerView.Adapter<RVpriceAdapter
         val currentFormatted = "${currentPrice}€"
         val originalFormatted = "${originalPrice}€"
         val discount = currentItem.discount.toString() + "%"
-        val date = currentItem.date
-
+        val date = formatDate(currentItem.date)
 
         viewHolder.tvPriceOriginal.text = originalPrice.toString()
         viewHolder.tvPriceDiscount.text = currentFormatted
@@ -101,6 +102,14 @@ class RVpriceAdapter(val context: Context) : RecyclerView.Adapter<RVpriceAdapter
         } else {
             viewHolder.tvPriceOriginal.text = originalFormatted
         }
+    }
+
+    // Transform date from 1/1/2000 to 01/01/2000
+    private fun formatDate(date: String): String{
+        val originalFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
+        val targetFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        val newDate = LocalDate.parse(date,originalFormat)
+        return targetFormat.format(newDate)
     }
 
     // Return the size of your dataset (invoked by the layout manager)
